@@ -1,0 +1,124 @@
+name: PurrfectEats
+
+entities:
+  User:
+    authenticable: true
+    properties:
+      - name
+      - name: email
+        type: email
+      - name: role
+        type: choice
+        options:
+          values: [admin, user]
+        default: user
+    policies:
+      create:
+        - access: admin
+      read:
+        - access: restricted
+          allow: User
+          condition: self
+      update:
+        - access: restricted
+          allow: User
+          condition: self
+      delete:
+        - access: admin
+      signup:
+        - access: public
+
+  Brand:
+    properties:
+      - name
+      - name: logo
+        type: image
+        options:
+          sizes:
+            thumbnail:
+              width: 100
+              height: 100
+    policies:
+      create:
+        - access: admin
+      read:
+        - access: public
+      update:
+        - access: admin
+      delete:
+        - access: admin
+
+  Food:
+    properties:
+      - name
+      - name: foodType
+        type: choice
+        options:
+          values: [Wet, Dry, Raw]
+        default: Wet
+      - name: flavor
+        type: string
+      - name: description
+        type: text
+      - name: photo
+        type: image
+        options:
+          sizes:
+            small:
+              width: 200
+              height: 200
+            large:
+              width: 500
+              height: 500
+    belongsTo:
+      - Brand
+    policies:
+      create:
+        - access: admin
+      read:
+        - access: public
+      update:
+        - access: admin
+      delete:
+        - access: admin
+
+  Review:
+    properties:
+      - name: rating
+        type: number
+      - name: comment
+        type: text
+    belongsTo:
+      - name: author
+        entity: User
+      - Food
+    policies:
+      create:
+        - access: restricted
+          allow: User
+      read:
+        - access: public
+      update:
+        - access: restricted
+          allow: User
+          condition: self
+      delete:
+        - access: restricted
+          allow: User
+          condition: self
+
+
+# Global CORS handler for all preflight OPTIONS requests
+endpoints:
+  cors:
+    path: /api/*
+    method: OPTIONS
+    policies: []
+    handler: healthCheck
+
+# Health check endpoint for connection testing
+  health:
+    path: /api/health
+    method: GET
+    policies: []
+    handler: healthCheck
